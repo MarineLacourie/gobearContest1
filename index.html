@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GoBear QA Leaderboard</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.4.3/tabletop.min.js'></script>
+</head>
+<body class="no-lines">
+
+<header class="header">
+	<h1>
+		<span class="header-go">go</span>
+		<span class="header-bear">bear</span>
+		QA Leaderboard
+	</h1>
+</header>
+
+<div class="content">
+	<div class="rankings">
+		<ol class="lines">
+			<li class="line l--0"><span class="line__label title">Level:</span></li>
+			<li class="line l--25"><span class="line__label">Amateur</span></li>
+			<li class="line l--50"><span class="line__label">Advanced</span></li>
+			<li class="line l--75"><span class="line__label">Seasoned</span></li>
+			<li class="line l--100"><span class="line__label">Expert</span></li>
+		</ol>
+		<div class="charts"></div>
+	</div>
+
+</div>
+
+<script>
+
+	window.requestAnimationFrame(function() {
+
+		var delayCounter = 0;
+		var delayStep = 200;
+		var maxPoints;
+
+		function onDataReceived(data, tabletop) {
+			data = data.Sheet1.elements
+			data.sort(function(a,b) {
+				return b.Points - a.Points;
+			});
+
+			maxPoints = data[0].Points;
+
+			data.totalCountry = {};
+			data.totalDepartment = {};
+
+			for (var i = data.length - 1; i >= 0; i--) {
+				data.totalCountry[data[i].Country] += data[i].Points;
+				data.totalDepartment[data[i].Country] += data[i].Department;
+			}
+
+			renderPodium(data.slice(0,3));
+			renderChart('People Leaderboard', 'Name', data);
+		}
+
+		function renderPodium(data) {
+			
+		}
+
+		function renderChart(title, key, data) {
+			var chart = document.createElement('section');
+			chart.className = 'chart';
+
+			var chartTitle = document.createElement('h2');
+			chartTitle.className = 'chart__title';
+			chartTitle.textContent = title;
+
+			var chartHoriz = document.createElement('ul');
+			chartHoriz.className = 'chart__bars';
+
+			data.forEach(renderBar.bind(chartHoriz, key));
+
+			chart.appendChild(chartTitle);
+			chart.appendChild(chartHoriz);
+
+			document.querySelector('.charts').appendChild(chart);
+		}
+
+		function renderBar(type, item) {
+			var bar = document.createElement('li');
+			bar.className = 'chart__bar';
+			bar.style.animationDelay = ++delayCounter * delayStep + "ms";
+			bar.style.width = Math.floor(item.Points / maxPoints * 100) + '%';
+
+			var label = document.createElement('span');
+			label.className = 'chart__label';
+			label.textContent = item[type];
+
+			var value = document.createElement('span');
+			value.className = 'chart__value';
+			value.textContent = item.Points;
+
+			bar.appendChild(label);
+			bar.appendChild(value);
+			this.appendChild(bar);
+		}
+
+		Tabletop.init({
+			key: '10ovv1ZPOKyaHufjt9DMfDYwleFF9bpfXM3kjNp60EIo',
+			callback: onDataReceived,
+			parseNumbers: true
+		});
+	});
+
+</script>
+</body>
+</html>
