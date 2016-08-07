@@ -6,25 +6,25 @@
 	<link rel="stylesheet" type="text/css" href="styles.css">
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.4.3/tabletop.min.js'></script>
 </head>
-<body class="no-lines">
+<body class="initial">
 
 <header class="header">
 	<h1>
-		<span class="header-go">go</span>
-		<span class="header-bear">bear</span>
-		QA Leaderboard
+		<!-- <span class="header-go">go</span>
+		<span class="header-bear">bear</span> -->
+		Bug Contest 2016
 	</h1>
 </header>
 
+<div class="qa-bear"></div>
+
 <div class="content">
+	<div class="podium">
+		<div class="podium-step podium-first"></div>
+		<div class="podium-step podium-second"></div>
+		<div class="podium-step podium-third"></div>
+	</div>
 	<div class="rankings">
-		<ol class="lines">
-			<li class="line l--0"><span class="line__label title">Level:</span></li>
-			<li class="line l--25"><span class="line__label">Amateur</span></li>
-			<li class="line l--50"><span class="line__label">Advanced</span></li>
-			<li class="line l--75"><span class="line__label">Seasoned</span></li>
-			<li class="line l--100"><span class="line__label">Expert</span></li>
-		</ol>
 		<div class="charts"></div>
 	</div>
 
@@ -32,8 +32,14 @@
 
 <script>
 
-	window.requestAnimationFrame(function() {
+	setTimeout(function() {
+		document.body.className = "loading";
+	}, 10);
 
+	setTimeout(function() {
+
+		var refreshData  = 5*60*1000;
+		var initialDelay = 1000;
 		var delayCounter = 0;
 		var delayStep = 200;
 		var maxPoints;
@@ -56,10 +62,25 @@
 
 			renderPodium(data.slice(0,3));
 			renderChart('People Leaderboard', 'Name', data);
+
+			setTimeout(function() {
+				document.body.className = "";
+			}, initialDelay)
+
+			setTimeout(function() {
+				location.reload();
+			}, refreshData);
 		}
 
 		function renderPodium(data) {
-			
+			var steps = document.querySelectorAll('.podium-step');
+			data.forEach(function(item, i) {
+				steps[i].innerHTML = `<img src=${item.photo} />`;
+			});
+		}
+
+		function removeEmptyRows(key, item) {
+			return !!item[key];
 		}
 
 		function renderChart(title, key, data) {
@@ -73,7 +94,8 @@
 			var chartHoriz = document.createElement('ul');
 			chartHoriz.className = 'chart__bars';
 
-			data.forEach(renderBar.bind(chartHoriz, key));
+			data.filter(removeEmptyRows.bind(chartHoriz, key))
+				.forEach(renderBar.bind(chartHoriz, key));
 
 			chart.appendChild(chartTitle);
 			chart.appendChild(chartHoriz);
@@ -84,7 +106,7 @@
 		function renderBar(type, item) {
 			var bar = document.createElement('li');
 			bar.className = 'chart__bar';
-			bar.style.animationDelay = ++delayCounter * delayStep + "ms";
+			bar.style.animationDelay = (initialDelay*1.5 + (++delayCounter * delayStep)) + "ms";
 			bar.style.width = Math.floor(item.Points / maxPoints * 100) + '%';
 
 			var label = document.createElement('span');
@@ -105,7 +127,7 @@
 			callback: onDataReceived,
 			parseNumbers: true
 		});
-	});
+	}, 1000);
 
 </script>
 </body>
