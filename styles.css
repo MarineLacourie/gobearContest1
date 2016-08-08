@@ -262,7 +262,7 @@ h1 {
 .chart__title {
   display: block;
   font-weight: 500;
-  color: #12542e;
+  color: ##333;
   font-size: 1.5rem;
 }
 .chart--prod .chart__title {
